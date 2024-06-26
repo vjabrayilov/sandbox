@@ -1,21 +1,21 @@
-BASE_DIR = $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-BUILDER_BASE_IMG = debian:buster-slim
-DOCKER_NAMESPACE = getcapsule
+BASE_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+BUILDER_BASE_IMG := debian:bullseye-slim
+DOCKER_NAMESPACE := vjabrayilov
 
-DPDK_IMG = dpdk
-DPDK_DEVBIND_IMG = dpdk-devbind
-DPDK_MOD_IMG = dpdk-mod
-DPDK_MOD_KERNEL = $(shell uname -r)
-DPDK_TARGET = /usr/local/src/dpdk-$(DPDK_VERSION)
-DPDK_VERSION = 19.11.6
+DPDK_IMG := dpdk
+DPDK_DEVBIND_IMG := dpdk-devbind
+DPDK_MOD_IMG := dpdk-mod
+DPDK_MOD_KERNEL := $(shell uname -r)
+DPDK_TARGET := /usr/local/src/dpdk-$(DPDK_VERSION)
+DPDK_VERSION := 23.11.1
 
-RR_VERSION = 5.5.0
-RUST_BASE_IMG = rust:$(RUST_VERSION)-slim-buster
-RUST_VERSION = 1.62
+RR_VERSION := 5.8.0
+RUST_VERSION := 1.75
+RUST_BASE_IMG := rust:$(RUST_VERSION)-slim-bullseye
 
-SANDBOX_IMG = sandbox
-SANDBOX = $(DOCKER_NAMESPACE)/$(SANDBOX_IMG):$(DPDK_VERSION)-$(RUST_VERSION)
-SANDBOX_LATEST = $(DOCKER_NAMESPACE)/$(SANDBOX_IMG):latest
+SANDBOX_IMG := sandbox
+SANDBOX := $(DOCKER_NAMESPACE)/$(SANDBOX_IMG):$(DPDK_VERSION)-$(RUST_VERSION)
+SANDBOX_LATEST := $(DOCKER_NAMESPACE)/$(SANDBOX_IMG):latest
 
 .PHONY: build-all pull-all push-all \
         build-dpdk build-devbind build-mod build-sandbox \

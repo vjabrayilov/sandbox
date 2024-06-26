@@ -1,22 +1,23 @@
-ARG BUILDER_BASE_IMG
-ARG RUST_BASE_IMG
+ARG BUILDER_BASE_IMG=debian:bullseye-slim
+ARG RUST_BASE_IMG=1.75
 
-FROM $BUILDER_BASE_IMG as builder
+FROM ${BUILDER_BASE_IMG} AS builder
 
 ARG DEBUG=false
 ARG DPDK_VERSION
 ARG DPDK_PATH=http://fast.dpdk.org/rel
 ARG DPDK_TARGET=/usr/local/src/dpdk-stable-${DPDK_VERSION}
-ARG DPDK_MACHINE=corei7
-ARG DPDK_TUNE_TYPE=corei7-avx
+ARG DPDK_MACHINE=broadwell
+ARG DPDK_TUNE_TYPE=broadwell
 
 RUN apt-get update \
   && apt-get install -y \
     build-essential \
     libnuma-dev \
     libpcap-dev \
-    linux-headers-$(uname -r) \
+    linux-headers-generic \
     python3-setuptools \
+    python3-pyelftools \
     python3-pip \
     wget \
   && pip3 install \
@@ -40,9 +41,10 @@ RUN meson build \
 ##
 ## dpdk
 ##
-FROM debian:buster-slim as dpdk
 
-LABEL maintainer="Capsule Developers <capsule-dev@googlegroups.com>"
+FROM ${BUILDER_BASE_IMG} AS dpdk
+
+LABEL maintainer="vjabrayilov <vjabrayilov@cs.columbia.edu>"
 
 COPY --from=builder /usr/local/lib/x86_64-linux-gnu /usr/local/lib/x86_64-linux-gnu
 
@@ -58,9 +60,9 @@ RUN apt-get update \
 ##
 ## dpdk-devbind utility
 ##
-FROM debian:buster-slim as dpdk-devbind
+FROM ${BUILDER_BASE_IMG} AS dpdk-devbind
 
-LABEL maintainer="Capsule Developers <capsule-dev@googlegroups.com>"
+LABEL maintainer="vjabrayilov <vjabrayilov@cs.columbia.edu>"
 
 COPY --from=builder /usr/local/bin/dpdk-devbind.py /usr/local/bin/dpdk-devbind.py
 
@@ -76,9 +78,9 @@ RUN apt-get update \
 ##
 ## dpdk-mod utility
 ##
-FROM debian:buster-slim as dpdk-mod
+FROM ${BUILDER_BASE_IMG} AS dpdk-mod
 
-LABEL maintainer="Capsule Developers <capsule-dev@googlegroups.com>"
+LABEL maintainer="vjabrayilov <vjabrayilov@cs.columbia.edu>"
 
 COPY --from=builder /lib/modules /lib/modules
 
@@ -92,9 +94,10 @@ RUN apt-get update \
 ##
 ## capsule-sandbox for development
 ##
-FROM $RUST_BASE_IMG as sandbox
 
-LABEL maintainer="Capsule Developers <capsule-dev@googlegroups.com>"
+FROM ${RUST_BASE_IMG} AS sandbox
+
+LABEL maintainer="vjabrayilov <vjabrayilov@cs.columbia.edu>"
 
 ARG DPDK_VERSION
 ARG DPDK_TARGET=/usr/local/src/dpdk-stable-${DPDK_VERSION}
@@ -124,7 +127,7 @@ RUN apt-get update \
     llvm-dev \
     pciutils \
     pkg-config \
-    python-pyelftools \
+    python3-pyelftools \
     python3-setuptools \
     python3-pip \
     tcpdump \
