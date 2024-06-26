@@ -24,25 +24,25 @@ SANDBOX_LATEST := $(DOCKER_NAMESPACE)/$(SANDBOX_IMG):latest
         push-sandbox push-sandbox-latest \
         connect-sandbox run-sandbox test-sandbox
 
-build-dpdk:
+build-dpdk: ## Build the DPDK Docker image
 	@docker build --target $(DPDK_IMG) \
 		--build-arg BUILDER_BASE_IMG=$(BUILDER_BASE_IMG) \
 		--build-arg DPDK_VERSION=$(DPDK_VERSION) \
 		-t $(DOCKER_NAMESPACE)/$(DPDK_IMG):$(DPDK_VERSION) $(BASE_DIR)
 
-build-devbind:
+build-devbind: ## Build the DPDK devbind Docker image
 	@docker build --target $(DPDK_DEVBIND_IMG) \
 		--build-arg BUILDER_BASE_IMG=$(BUILDER_BASE_IMG) \
 		--build-arg DPDK_VERSION=$(DPDK_VERSION) \
 		-t $(DOCKER_NAMESPACE)/$(DPDK_DEVBIND_IMG):$(DPDK_VERSION) $(BASE_DIR)
 
-build-mod:
+build-mod: ## Build the DPDK mod Docker image
 	@docker build --target $(DPDK_MOD_IMG) \
 		--build-arg BUILDER_BASE_IMG=$(BUILDER_BASE_IMG) \
 		--build-arg DPDK_VERSION=$(DPDK_VERSION) \
 		-t $(DOCKER_NAMESPACE)/$(DPDK_MOD_IMG):$(DPDK_VERSION)-$(DPDK_MOD_KERNEL) $(BASE_DIR)
 
-build-sandbox:
+build-sandbox: ## Build the sandbox Docker image
 	@docker build --target $(SANDBOX_IMG) \
 		--build-arg BUILDER_BASE_IMG=$(BUILDER_BASE_IMG) \
 		--build-arg DEBUG=true \
@@ -51,53 +51,53 @@ build-sandbox:
 		--build-arg RUST_BASE_IMG=$(RUST_BASE_IMG) \
 		-t $(SANDBOX) $(BASE_DIR)
 
-build-all: build-dpdk build-devbind build-mod build-sandbox
+build-all: build-dpdk build-devbind build-mod build-sandbox ## Build all Docker images (dpdk, devbind, mod, sandbox)
 
-connect-sandbox:
+connect-sandbox: ## Connect to the sandbox container
 	@docker exec -it $(SANDBOX_IMG) /bin/bash
 
-pull-all: pull-dpdk pull-devbind pull-mod pull-sandbox
+pull-all: pull-dpdk pull-devbind pull-mod pull-sandbox ## Pull all Docker images
 
-pull-dpdk:
+pull-dpdk: ## Pull the DPDK Docker image
 	@docker pull $(DOCKER_NAMESPACE)/$(DPDK_IMG):$(DPDK_VERSION)
 
-pull-devbind:
+pull-devbind: ## Pull the DPDK devbind Docker image
 	@docker pull $(DOCKER_NAMESPACE)/$(DPDK_DEVBIND_IMG):$(DPDK_VERSION)
 
-pull-mod:
+pull-mod: ## Pull the DPDK mod image
 	@docker pull $(DOCKER_NAMESPACE)/$(DPDK_MOD_IMG):$(DPDK_VERSION)-$(DPDK_MOD_KERNEL)
 
-pull-sandbox:
+pull-sandbox: ## Pull the sandbox Docker image
 	@docker pull $(SANDBOX)
 
 push-all: push-dpdk push-dpdk-latest push-devbind push-devbind-latest push-mod \
-          push-sandbox push-sandbox-latest
+          push-sandbox push-sandbox-latest ## Push all Docker images
 
-push-dpdk:
+push-dpdk: ## Push the DPDK Docker image
 	@docker push $(DOCKER_NAMESPACE)/$(DPDK_IMG):$(DPDK_VERSION)
 
-push-dpdk-latest:
+push-dpdk-latest: ## Tag and push the DPDK Docker image as the latest
 	@docker tag $(DOCKER_NAMESPACE)/$(DPDK_IMG):$(DPDK_VERSION) $(DOCKER_NAMESPACE)/$(DPDK_IMG):latest
 	@docker push $(DOCKER_NAMESPACE)/$(DPDK_IMG):latest
 
-push-devbind:
+push-devbind: ## Push the DPDK devbind image
 	@docker push $(DOCKER_NAMESPACE)/$(DPDK_DEVBIND_IMG):$(DPDK_VERSION)
 
-push-devbind-latest:
+push-devbind-latest: ## Tag and push the DPDK devbind Docker image as the latest
 	@docker tag $(DOCKER_NAMESPACE)/$(DPDK_DEVBIND_IMG):$(DPDK_VERSION) $(DOCKER_NAMESPACE)/$(DPDK_DEVBIND_IMG):latest
 	@docker push $(DOCKER_NAMESPACE)/$(DPDK_DEVBIND_IMG):latest
 
-push-mod:
+push-mod: ## Push the DPDK mod Docker image
 	@docker push $(DOCKER_NAMESPACE)/$(DPDK_MOD_IMG):$(DPDK_VERSION)-$(DPDK_MOD_KERNEL)
 
-push-sandbox:
+push-sandbox: ## Push the sandbox Docker image
 	@docker push $(SANDBOX)
 
-push-sandbox-latest:
+push-sandbox-latest: ## Tag and push the sandbox Docker image as the latext version
 	@docker tag $(SANDBOX) $(SANDBOX_LATEST)
 	@docker push $(SANDBOX_LATEST)
 
-run-sandbox:
+run-sandbox: ## Run the sandbox
 	@if [ "$$(docker images -q $(SANDBOX))" = "" ]; then \
 	docker pull $(SANDBOX); \
 	fi
@@ -109,7 +109,7 @@ run-sandbox:
 	-v $(BASE_DIR)/capsule:/home/capsule \
 	$(SANDBOX) /bin/bash
 
-test-sandbox:
+test-sandbox: ## Run the tests in the sandbox Docker container
 	@if [ "$$(docker images -q $(SANDBOX))" = "" ]; then \
 	docker pull $(SANDBOX); \
 	fi
@@ -119,3 +119,7 @@ test-sandbox:
 	-v /dev/hugepages:/dev/hugepages \
 	-v $(BASE_DIR)/capsule:/home/capsule \
 	$(SANDBOX) make test
+
+help: ## Print this help message
+	@echo "Available targets:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
