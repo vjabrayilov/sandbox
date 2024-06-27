@@ -33,6 +33,7 @@ RUN meson build \
   && if [ "$DEBUG" = "true" ]; then meson configure -Dbuildtype=debug; fi \
   && meson configure -Dmachine=${DPDK_MACHINE} \
   && meson configure -Dc_args=-mtune=${DPDK_TUNE_TYPE} \
+  && meson configure -Dtests=false -Ddisable_drivers='raw/*,crypto/*,baseband/*,dma/*' \
   && ninja \
   && ninja install \
   && rm -rf ${DPDK_TARGET}/build /usr/local/bin/dpdk-test \
