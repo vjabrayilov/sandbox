@@ -7,8 +7,6 @@ DPDK_DEVBIND_IMG := dpdk-devbind
 DPDK_MOD_IMG := dpdk-mod
 DPDK_MOD_KERNEL := $(shell uname -r)
 DPDK_TARGET := /usr/local/src/dpdk-$(DPDK_VERSION)
-## LTS versions working 19.11.14; 20.11.10;
-# DPDK_VERSION := 21.11.7
 DPDK_VERSION :=  19.11.14
 
 RR_VERSION := 5.8.0
@@ -109,7 +107,7 @@ run-sandbox: ## Run the sandbox
 	-v /lib/modules:/lib/modules \
 	-v /dev/hugepages:/dev/hugepages \
 	-v $(BASE_DIR)/capsule:/home/capsule \
-	-v $(BASE_DIR)/pp:/home/pp \
+	-v $(BASE_DIR)/ffp:/home/ffp \
 	$(SANDBOX) /bin/bash
 
 test-sandbox: ## Run the tests in the sandbox Docker container
