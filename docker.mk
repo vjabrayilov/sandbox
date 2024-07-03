@@ -109,6 +109,7 @@ run-sandbox: ## Run the sandbox
 	-v /lib/modules:/lib/modules \
 	-v /dev/hugepages:/dev/hugepages \
 	-v $(BASE_DIR)/capsule:/home/capsule \
+	-v $(BASE_DIR)/pp:/home/pp \
 	$(SANDBOX) /bin/bash
 
 test-sandbox: ## Run the tests in the sandbox Docker container

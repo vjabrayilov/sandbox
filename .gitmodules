@@ -2,3 +2,6 @@
 	path = capsule
 	url = git@github.com:capsule-rs/capsule.git
 	branch = master
+[submodule "pp"]
+	path = pp
+	url = git@github.com:vjabrayilov/pp.git
