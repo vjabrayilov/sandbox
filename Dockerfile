@@ -7,8 +7,8 @@ ARG DEBUG=false
 ARG DPDK_VERSION
 ARG DPDK_PATH=http://fast.dpdk.org/rel
 ARG DPDK_TARGET=/usr/local/src/dpdk-stable-${DPDK_VERSION}
-ARG DPDK_MACHINE=broadwell
-ARG DPDK_TUNE_TYPE=broadwell
+# ARG DPDK_MACHINE=broadwell
+# ARG DPDK_TUNE_TYPE=broadwell
 
 RUN apt-get update \
   && apt-get install -y \
@@ -31,8 +31,8 @@ WORKDIR ${DPDK_TARGET}
 RUN meson build \
   && cd build \
   && if [ "$DEBUG" = "true" ]; then meson configure -Dbuildtype=debug; fi \
-  && meson configure -Dmachine=${DPDK_MACHINE} \
-  && meson configure -Dc_args=-mtune=${DPDK_TUNE_TYPE} \
+  # && meson configure -Dmachine=${DPDK_MACHINE} \
+  # && meson configure -Dc_args=-mtune=${DPDK_TUNE_TYPE} \
   && meson configure -Dtests=false -Ddisable_drivers='raw/*,crypto/*,baseband/*,dma/*' \
   && ninja \
   && ninja install \
